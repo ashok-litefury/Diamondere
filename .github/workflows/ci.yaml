@@ -31,6 +31,15 @@ jobs:
         npm install --unsafe-perm --force
         npm install wdio-chromedriver-service --save-dev
 
+    - name: Set TZ environment variable
+      run: |
+        export TZ='Pacific/Auckland'
+        
+    - name: Create folders for Selenium Grid
+      run: |
+        mkdir -p /path/to/selenium/grid/folder/reports/json/tmp
+        mkdir -p /path/to/selenium/grid/folder/reports/junit
+        
     - name: Run WebDriverIO tests in Selenium Grid
       run: |
         npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20
