@@ -1,20 +1,66 @@
-name: CI
-on: [push, pull_request]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        - uses: actions/setup-node@v1
-          with:
-            node-version: 18
-        - name: Install
-          run: npm install
-        - name: Test
-          run: npm run test:local
-        - uses: actions/upload-artifact@v1
-          if: failure()
-          with:
-            name: logs
-            path: logs
+stages:
+  - LMJ_REGRESSION
+  - OTHERS
+  - SMOKETEST
+variables:
+  UX_RUN_ENV:
+      value: "preprod"  # Targeted to run tests in CTE by default
+      description: "The test environment target. Change this variable to 'TEST' if needed."
+  UX_RUN_SPEC:
+      value: ""  # Targeted to not run any spec by default
+      description: "Specific spec file we wish to execute example LMJ/Features/login.feature."
+  UX_RUN_TAGS:
+      value: ""  # Targeted to not run any tags by default
+      description: "Specific tags we wish to execute. Change this variable to '@smoketest' or chain tags with and/or '@MyTag and @smoketest' if needed."
+    
+LMJ_REGRESSION:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+  image: selenium/node-chrome:112.0
+  stage: LMJ_REGRESSION
+  script:
+    - sudo apt-get update && sudo apt-get install -y curl
+    - curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+    - sudo apt-get install -y nodejs
+    - sudo npm install --unsafe-perm --force
+    - sudo npm install wdio-chromedriver-service --save-dev
+    - sudo npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20
+  
+  before_script:
+    - export TZ='Pacific/Auckland'
+    - mkdir -p reports/json/tmp
+    - mkdir -p reports/junit
+  artifacts:
+    when: always
+    paths:
+      - $CI_PROJECT_DIR/reports
+    reports:
+      junit: $CI_PROJECT_DIR/reports/junit/results*.xml
+
+RUN_SINGLE_SPEC:
+  rules:
+    - if: '$UX_RUN_SPEC != ""'
+      when: always
+  image: selenium/node-chrome:112.0
+  stage: OTHERS
+  script:
+    - echo "$UX_RUN_ENV"
+    - echo "$UX_RUN_SPEC"
+    - echo "$UX_RUN_TAGS"
+    - sudo apt-get update && sudo apt-get install -y curl
+    - curl -sL https://deb.nodesource.com/setup_14.x | sudo bash -
+    - sudo apt-get install -y nodejs
+    - sudo npm install --unsafe-perm --force
+    - sudo npm install wdio-chromedriver-service --save-dev
+    - sudo npx wdio wdio.conf.js --env=${UX_RUN_ENV} --spec=${UX_RUN_SPEC} --cucumberOpts.tagExpression="${UX_RUN_TAGS}" --headless --log=ERROR  --maxInstances=15
+  timeout: 8h
+  before_script:
+    - export TZ='Pacific/Auckland'
+    - mkdir -p reports/json/tmp
+    - mkdir -p reports/junit
+  artifacts:
+    when: always
+    paths:
+      - $CI_PROJECT_DIR/reports
+    reports:
+      junit: $CI_PROJECT_DIR/reports/junit/results*.xml
