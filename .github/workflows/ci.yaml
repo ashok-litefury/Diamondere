@@ -39,7 +39,7 @@ jobs:
 
     - name: Run WebDriverIO tests inside Docker container
       run: |
-        docker run --rm --link selenium-hub:hub -v $PWD:/app -w /app selenium/node-chrome:112.0 sh -c "npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20"
+        docker run --rm --link selenium-hub:hub -v $PWD:/app -w /app selenium/node-chrome:112.0 sh -c "npm install && npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20"
 
     - name: Stop Selenium Grid
       run: |
