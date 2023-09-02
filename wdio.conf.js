@@ -21,7 +21,7 @@ logLevelSettings = argv.log || "DEBUG" //if --log is supplied, set loglevel; els
 Log.setLogLevel(logLevelSettings);
 
 // For receiving --env parameters.
-testEnv = argv.env || "stagging" //if --env is supplied, set env; else, default to CTE
+testEnv = argv.env || "staging" //if --env is supplied, set env; else, default to CTE
 Log.audit('Current Test Environment: ' + testEnv);
 
 //For receiving --headless parameter
