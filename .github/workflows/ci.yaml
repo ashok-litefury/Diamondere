@@ -13,35 +13,27 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js 14.x
-      uses: actions/setup-node@v2
+    - name: Set up Docker
+      uses: actions/setup-docker@v2
       with:
-        node-version: 14
+        dockerfile: Dockerfile
 
-    - name: Add NodeSource repository
+    - name: Build and run custom Docker image
       run: |
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/nodesource-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/nodesource-archive-keyring.gpg] https://deb.nodesource.com/node_14.x focal main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-        echo "deb-src [signed-by=/usr/share/keyrings/nodesource-archive-keyring.gpg] https://deb.nodesource.com/node_14.x focal main" | sudo tee -a /etc/apt/sources.list.d/nodesource.list
-        sudo apt-get update
-        sudo apt-get install -y nodejs
-
-    - name: Install dependencies with --unsafe-perm and wdio-chromedriver-service
-      run: |
-        npm install --unsafe-perm --force
-        npm install wdio-chromedriver-service --save-dev
-
-    - name: Start Selenium Grid
-      run: |
-        docker pull selenium/node-chrome:112.0
+        docker build -t my-webdriverio-image .
         docker run -d -p 4444:4444 --name selenium-hub selenium/hub:4.1.0
-        docker run -d --link selenium-hub:hub --name selenium-node-chrome selenium/node-chrome:112.0
+        docker run -d --link selenium-hub:hub --name my-webdriverio-container my-webdriverio-image
+
+    - name: Wait for Selenium Grid to start (adjust as needed)
+      run: sleep 30
 
     - name: Run WebDriverIO tests inside Docker container
       run: |
-        docker run --rm --link selenium-hub:hub -v $PWD:/app -w /app selenium/node-chrome:112.0 sh -c "npm install && npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20"
+        docker exec my-webdriverio-container sh -c "npm install && npx wdio wdio.conf.js --headless --log=ERROR --maxInstances=20"
 
-    - name: Stop Selenium Grid
+    - name: Stop Selenium Grid and remove containers
       run: |
-        docker stop selenium-node-chrome
+        docker stop my-webdriverio-container
         docker stop selenium-hub
+        docker rm my-webdriverio-container
+        docker rm selenium-hub
