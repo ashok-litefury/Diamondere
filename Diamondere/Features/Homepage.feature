@@ -3,7 +3,7 @@ Feature: Testing Homepage of Diamondere
     Background: Browsing staging environment
         Given I browse Diamondere website
 
-    #1
+    #1.
     Scenario: Checking the header link of the Diamondere homepage
         Given I move to the Free shipping,returns,resizing and certification section
         When I click the Free shipping Text Link in the Homepage Banner
