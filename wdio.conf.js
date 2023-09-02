@@ -21,7 +21,7 @@ logLevelSettings = argv.log || "DEBUG" //if --log is supplied, set loglevel; els
 Log.setLogLevel(logLevelSettings);
 
 // For receiving --env parameters.
-testEnv = argv.env || "preprod" //if --env is supplied, set env; else, default to CTE
+testEnv = argv.env || "stagging" //if --env is supplied, set env; else, default to CTE
 Log.audit('Current Test Environment: ' + testEnv);
 
 //For receiving --headless parameter
@@ -65,7 +65,7 @@ exports.config = {
     // will be called from there.
     //
     specs: [
-        './LMJ/Features/*.feature'
+        './Diamondere - Automation/Features/*.feature'
     ],
     // Patterns to exclude.
     exclude: [
@@ -196,7 +196,7 @@ exports.config = {
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <string[]> (file/dir) require files before executing features
-        require: ['./LMJ/StepDefs/*.js'],
+        require: ['./Diamondere - Automation/StepDefs/*.js'],
         // <boolean> show full backtrace for errors
         backtrace: false,
         // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
