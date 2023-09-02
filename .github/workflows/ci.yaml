@@ -37,8 +37,8 @@ jobs:
         
     - name: Create folders for Selenium Grid
       run: |
-        mkdir -p /path/to/selenium/grid/folder/reports/json/tmp
-        mkdir -p /path/to/selenium/grid/folder/reports/junit
+        mkdir -p ~/selenium/grid/folder/reports/json/tmp
+        mkdir -p ~/selenium/grid/folder/reports/junit
         
     - name: Run WebDriverIO tests in Selenium Grid
       run: |
