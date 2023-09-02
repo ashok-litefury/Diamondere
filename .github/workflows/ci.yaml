@@ -30,6 +30,7 @@ jobs:
       run: |
         npm install --unsafe-perm --force
         npm install wdio-chromedriver-service --save-dev
+        npm install chromedriver@^112.0.1
 
     - name: Run WebDriverIO tests in Selenium Grid
       run: |
